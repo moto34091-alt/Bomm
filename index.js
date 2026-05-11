@@ -7,15 +7,16 @@ const TelegramBot = require("node-telegram-bot-api");
 const app = express();
 
 // ============================
-// 🌐 WEB SERVER FIX
+// 📁 FRONTEND FIX
 // ============================
 
-// 🔥 Sert les fichiers HTML (public/)
+// IMPORTANT : dossier public obligatoire
 app.use(express.static("public"));
 
-// 🔥 Route principale (CORRIGE Cannot GET /)
+// Route principale (évite "Cannot GET /")
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+    const filePath = path.join(__dirname, "public", "index.html");
+    res.sendFile(filePath);
 });
 
 // ============================
@@ -26,7 +27,7 @@ const bot = new TelegramBot(process.env.BOT_TOKEN, {
 });
 
 // ============================
-// 📊 IA SIMPLE SIGNAL
+// 📊 SIMPLE SIGNAL IA
 // ============================
 function analyze() {
 
@@ -34,7 +35,7 @@ function analyze() {
     const momentum = Math.random();
 
     let signal = "WAIT";
-    let emoji = "🟡⏸";
+    let emoji = "🟡";
     let trend = "NEUTRE";
 
     if (rsi < 30 && momentum > 0.5) {
@@ -53,7 +54,7 @@ function analyze() {
 }
 
 // ============================
-// 🚀 START BUTTON WEB APP
+// 🚀 START BOT + WEB APP
 // ============================
 bot.onText(/\/start/, (msg) => {
 
@@ -74,17 +75,17 @@ bot.onText(/\/start/, (msg) => {
 });
 
 // ============================
-// 📊 API SIGNAL
+// 📡 API SIGNAL
 // ============================
 app.get("/api/signal", (req, res) => {
     res.json(analyze());
 });
 
 // ============================
-// 🚀 START SERVER
+// 🚀 SERVER START
 // ============================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log("🚀 SERVER OK");
+    console.log("🚀 SERVER OK ON PORT", PORT);
 });
