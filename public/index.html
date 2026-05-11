@@ -1,153 +1,521 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Trading Bot Dashboard</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      margin: 0;
-      padding: 0;
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>AI TRADING PRO</title>
+
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:radial-gradient(circle at top,#1e3a8a,#0f172a,#020617);
+    color:white;
+    overflow-x:hidden;
+}
+
+/* SCREEN */
+.screen{
+    display:none;
+    padding:20px;
+    animation:fade .4s ease;
+}
+
+.active{
+    display:block;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(10px);
     }
 
-    .header {
-      background: #111827;
-      padding: 15px;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
+    to{
+        opacity:1;
+        transform:translateY(0);
     }
+}
 
-    .box {
-      background: #1f2937;
-      margin: 10px;
-      padding: 15px;
-      border-radius: 10px;
+/* TITLE */
+.title{
+    text-align:center;
+    font-size:28px;
+    font-weight:bold;
+    margin-top:15px;
+}
+
+/* 3D CARD */
+.card{
+    background:rgba(30,41,59,.9);
+    border-radius:18px;
+    padding:18px;
+    margin-top:15px;
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,.5),
+        inset 0 1px 1px rgba(255,255,255,.08);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    backdrop-filter: blur(10px);
+}
+
+/* BUTTON */
+button{
+    border:none;
+    padding:14px 18px;
+    border-radius:14px;
+    margin:6px;
+    cursor:pointer;
+    font-size:16px;
+    transition:.2s;
+    font-weight:bold;
+}
+
+button:hover{
+    transform:scale(1.08) translateY(-2px);
+
+    box-shadow:
+        0 10px 20px rgba(0,0,0,.4);
+}
+
+/* COLORS */
+.blue{
+    background:linear-gradient(135deg,#3b82f6,#2563eb);
+    color:white;
+}
+
+.green{
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    color:white;
+}
+
+.red{
+    background:linear-gradient(135deg,#ef4444,#dc2626);
+    color:white;
+}
+
+.orange{
+    background:linear-gradient(135deg,#f59e0b,#d97706);
+    color:white;
+}
+
+.purple{
+    background:linear-gradient(135deg,#a855f7,#7e22ce);
+    color:white;
+}
+
+/* CHART */
+#chart{
+    width:100%;
+    height:350px;
+}
+
+/* LOADER */
+.loader{
+    border:4px solid #333;
+    border-top:4px solid #22c55e;
+    border-radius:50%;
+    width:45px;
+    height:45px;
+    animation:spin 1s linear infinite;
+    margin:auto;
+}
+
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
     }
+}
 
-    button {
-      padding: 10px;
-      margin: 5px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #3b82f6;
-      color: white;
-    }
+/* RESULT */
+.result{
+    font-size:24px;
+    font-weight:bold;
+    margin-top:15px;
+}
 
-    button:hover {
-      background: #2563eb;
-    }
+.info{
+    font-size:18px;
+    margin-top:10px;
+}
 
-    .admin { background: #ef4444; }
-    .help { background: #10b981; }
-    .strategy { background: #f59e0b; }
-    .signup { background: #8b5cf6; }
-  </style>
+.center{
+    text-align:center;
+}
+
+</style>
 </head>
 
 <body>
 
-<div class="header">
-🚀 TRADING BOT DASHBOARD
+<div class="title">
+📊 AI TRADING PRO
 </div>
 
-<!-- 📢 ANNONCE BOT -->
-<div class="box">
-  <h3>📢 Annonce du Bot</h3>
-  <p id="announcement">Chargement...</p>
+<!-- START -->
+<div id="start" class="screen active center">
+
+    <div class="card">
+
+        <h2>🚀 Trading Dashboard</h2>
+
+        <p>
+            Analyse intelligente OTC
+        </p>
+
+        <button class="blue" onclick="goMarket()">
+            ▶ DÉMARRER
+        </button>
+
+    </div>
+
 </div>
 
-<!-- 🤖 STATUS BOT -->
-<div class="box">
-  <h3>🤖 Statut du Bot</h3>
-  <p id="status">🟢 Actif et analyse en temps réel</p>
+<!-- MARKET -->
+<div id="market" class="screen center">
+
+    <div class="card">
+
+        <h2>💎 Choisir Marché OTC</h2>
+
+        <button class="orange" onclick="setMarket('BTCUSDT')">BTC OTC</button>
+
+        <button class="green" onclick="setMarket('ETHUSDT')">ETH OTC</button>
+
+        <button class="purple" onclick="setMarket('BNBUSDT')">BNB OTC</button>
+
+        <button class="blue" onclick="setMarket('SOLUSDT')">SOL OTC</button>
+
+        <button class="red" onclick="setMarket('XRPUSDT')">XRP OTC</button>
+
+        <button class="green" onclick="setMarket('ADAUSDT')">ADA OTC</button>
+
+        <button class="purple" onclick="setMarket('DOGEUSDT')">DOGE OTC</button>
+
+        <button class="orange" onclick="setMarket('TRXUSDT')">TRX OTC</button>
+
+        <button class="blue" onclick="setMarket('LTCUSDT')">LTC OTC</button>
+
+        <button class="red" onclick="setMarket('AVAXUSDT')">AVAX OTC</button>
+
+        <button class="green" onclick="setMarket('MATICUSDT')">MATIC OTC</button>
+
+        <button class="purple" onclick="setMarket('DOTUSDT')">DOT OTC</button>
+
+    </div>
+
 </div>
 
-<!-- 👨‍💼 ADMIN -->
-<div class="box">
-  <h3>👨‍💼 Message Admin</h3>
-  <p id="adminMessage">Aucun message</p>
-  <button class="admin" onclick="contactAdmin()">Contacter Admin</button>
+<!-- TIME -->
+<div id="time" class="screen center">
+
+    <div class="card">
+
+        <h2>⏱ Choisir Timeframe</h2>
+
+        <button class="orange" onclick="setTime('5s')">5 SEC</button>
+
+        <button class="orange" onclick="setTime('15s')">15 SEC</button>
+
+        <button class="orange" onclick="setTime('30s')">30 SEC</button>
+
+        <button class="blue" onclick="setTime('1m')">1 MIN</button>
+
+        <button class="green" onclick="setTime('5m')">5 MIN</button>
+
+    </div>
+
 </div>
 
-<!-- 📞 CONTACT -->
-<div class="box">
-  <h3>📞 Contact</h3>
-  <p>Support : Telegram / WhatsApp / Email</p>
-  <button onclick="openContact()">Ouvrir Contact</button>
+<!-- ANALYSIS -->
+<div id="analysis" class="screen center">
+
+    <div class="card">
+
+        <h2>📊 Analyse IA</h2>
+
+        <div class="loader"></div>
+
+        <p>
+            RSI + Momentum + Smart Money...
+        </p>
+
+    </div>
+
 </div>
 
-<!-- ❓ AIDE -->
-<div class="box">
-  <h3>❓ Comment le bot marche</h3>
-  <p>Le bot analyse le marché, détecte tendance et envoie des signaux BUY / SELL automatiquement.</p>
-  <button class="help" onclick="showHelp()">Voir explication complète</button>
-</div>
+<!-- RESULT -->
+<div id="result" class="screen">
 
-<!-- 📊 STRATÉGIES -->
-<div class="box">
-  <h3>📊 Stratégies</h3>
-  <ul>
-    <li>🔥 Momentum Trend</li>
-    <li>📉 Reversal Zones</li>
-    <li>⚡ Breakout Detection</li>
-    <li>⭐ Price Action Smart</li>
-  </ul>
-  <button class="strategy" onclick="showStrategy()">Détails stratégies</button>
-</div>
+    <div class="card center">
 
-<!-- 🧠 INSCRIPTION -->
-<div class="box">
-  <h3>🧠 Inscription</h3>
-  <p>Rejoindre le bot via le lien officiel :</p>
-  <button class="signup" onclick="signup()">S'inscrire</button>
-  <p>ID utilisateur : <span id="userId">---</span></p>
+        <h2 id="signal">
+            SIGNAL
+        </h2>
+
+        <div class="info" id="marketInfo"></div>
+
+        <div class="info" id="timeInfo"></div>
+
+        <div class="info" id="rsi"></div>
+
+        <div class="info" id="momentum"></div>
+
+        <div class="info" id="strategy"></div>
+
+        <div class="result" id="final"></div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>
+            📈 Chandeliers Binance Live
+        </h2>
+
+        <div id="chart"></div>
+
+    </div>
+
+    <div class="center">
+
+        <button class="blue" onclick="restart()">
+            🔄 Nouvelle Analyse
+        </button>
+
+    </div>
+
 </div>
 
 <script>
 
-  // 🔥 ANNOUNCEMENT BOT
-  document.getElementById("announcement").innerText =
-    "🚀 Nouveau système IA activé + analyse améliorée";
+let selectedMarket = "BTCUSDT";
+let selectedTime = "1m";
 
-  // 👤 USER ID (simulation)
-  document.getElementById("userId").innerText = "USER-102938";
+let chart;
+let candleSeries;
 
-  // 👨‍💼 ADMIN MESSAGE
-  document.getElementById("adminMessage").innerText =
-    "📢 Mise à jour prévue aujourd’hui à 22h";
+// ======================
+// SCREEN
+// ======================
+function show(id){
 
-  // 📞 CONTACT
-  function openContact() {
-    alert("Ouverture du support...");
-    window.open("https://t.me/your_support", "_blank");
-  }
+    document.querySelectorAll(".screen")
+    .forEach(s => s.classList.remove("active"));
 
-  // 👨‍💼 ADMIN CONTACT
-  function contactAdmin() {
-    window.open("https://t.me/admin_account", "_blank");
-  }
+    document.getElementById(id)
+    .classList.add("active");
+}
 
-  // ❓ HELP
-  function showHelp() {
-    alert(
-      "Le bot analyse les chandeliers, détecte la tendance et envoie des signaux automatiques basés sur la stratégie IA."
-    );
-  }
+// ======================
+// START
+// ======================
+function goMarket(){
+    show("market");
+}
 
-  // 📊 STRATEGY
-  function showStrategy() {
-    alert(
-      "Stratégies combinées : RSI + Trend + Support/Resistance + Momentum."
-    );
-  }
+// ======================
+// MARKET
+// ======================
+function setMarket(m){
 
-  // 🧠 SIGNUP LINK
-  function signup() {
-    window.open("https://your-signup-link.com", "_blank");
-  }
+    selectedMarket = m;
+
+    show("time");
+}
+
+// ======================
+// TIME
+// ======================
+function setTime(t){
+
+    selectedTime = t;
+
+    runAnalysis();
+}
+
+// ======================
+// RSI
+// ======================
+function calculateRSI(closes, period = 14){
+
+    let gains = 0;
+    let losses = 0;
+
+    for(let i = 1; i < period; i++){
+
+        const diff = closes[i] - closes[i - 1];
+
+        if(diff > 0){
+            gains += diff;
+        } else {
+            losses += Math.abs(diff);
+        }
+    }
+
+    const rs = gains / (losses || 1);
+
+    return 100 - (100 / (1 + rs));
+}
+
+// ======================
+// ANALYSIS
+// ======================
+async function runAnalysis(){
+
+    show("analysis");
+
+    // 🔥 ultra rapide
+    setTimeout(async ()=>{
+
+        // Binance API
+        const url =
+`https://api.binance.com/api/v3/klines?symbol=${selectedMarket}&interval=1m&limit=100`;
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        const candles = data.map(c => ({
+
+            time: c[0] / 1000,
+            open: parseFloat(c[1]),
+            high: parseFloat(c[2]),
+            low: parseFloat(c[3]),
+            close: parseFloat(c[4])
+
+        }));
+
+        const closes = candles.map(c => c.close);
+
+        // RSI
+        const rsi = calculateRSI(closes);
+
+        // Momentum
+        const last = closes[closes.length - 1];
+        const prev = closes[closes.length - 2];
+
+        const bullish = last > prev;
+
+        let momentum = "🟡 NEUTRE";
+
+        let signal = "WAIT";
+
+        let emoji = "🟡";
+
+        let final = "WAIT";
+
+        // ===================
+        // 🔥 STRATEGIES OTC
+        // ===================
+
+        // BUY
+        if(rsi < 45 && bullish){
+
+            momentum = "🟢 HAUSSIER";
+
+            signal = "BUY";
+
+            emoji = "🟢📈";
+
+            final = "BUY STRONG";
+        }
+
+        // SELL
+        if(rsi > 55 && !bullish){
+
+            momentum = "🔴 BAISSIER";
+
+            signal = "SELL";
+
+            emoji = "🔴📉";
+
+            final = "SELL STRONG";
+        }
+
+        // ===================
+        // UI
+        // ===================
+
+        document.getElementById("signal")
+        .innerText = `${emoji} ${signal}`;
+
+        document.getElementById("marketInfo")
+        .innerText = `💎 Marché: ${selectedMarket}`;
+
+        document.getElementById("timeInfo")
+        .innerText = `⏱ Timeframe: ${selectedTime}`;
+
+        document.getElementById("rsi")
+        .innerText = `📈 RSI: ${rsi.toFixed(2)}`;
+
+        document.getElementById("momentum")
+        .innerText = `⚡ Momentum: ${momentum}`;
+
+        document.getElementById("strategy")
+        .innerText =
+`🧠 Strategy: RSI + Momentum + Smart Money`;
+
+        document.getElementById("final")
+        .innerText = final;
+
+        // RESULT
+        show("result");
+
+        // ===================
+        // CHART
+        // ===================
+
+        document.getElementById("chart")
+        .innerHTML = "";
+
+        chart = LightweightCharts.createChart(
+
+            document.getElementById("chart"),
+
+            {
+                width: window.innerWidth - 40,
+                height: 350,
+
+                layout: {
+                    background: {
+                        color: "#111827"
+                    },
+
+                    textColor: "#ffffff"
+                },
+
+                grid: {
+                    vertLines: {
+                        color: "#1e293b"
+                    },
+
+                    horzLines: {
+                        color: "#1e293b"
+                    }
+                }
+            }
+        );
+
+        candleSeries = chart.addCandlestickSeries();
+
+        candleSeries.setData(candles);
+
+    }, 300);
+}
+
+// ======================
+// RESET
+// ======================
+function restart(){
+
+    show("start");
+}
 
 </script>
 
