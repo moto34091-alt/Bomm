@@ -1,191 +1,153 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>AI Trading Bot</title>
-
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-
+  <title>Trading Bot Dashboard</title>
   <style>
-    body { margin:0; font-family:Arial; background:#0b1220; color:white; }
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
 
     .header {
-      background:#111827;
-      padding:15px;
-      text-align:center;
-      font-weight:bold;
-    }
-
-    #chart {
-      height:400px;
-    }
-
-    .grid {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
-      padding:10px;
+      background: #111827;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
     }
 
     .box {
-      background:#1f2937;
-      padding:10px;
-      border-radius:10px;
-    }
-
-    input, button {
-      width:100%;
-      padding:6px;
-      margin-top:5px;
-      border:none;
-      border-radius:8px;
+      background: #1f2937;
+      margin: 10px;
+      padding: 15px;
+      border-radius: 10px;
     }
 
     button {
-      cursor:pointer;
-      color:white;
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #3b82f6;
+      color: white;
     }
 
-    .login { background:#3b82f6; }
-    .admin { background:#f59e0b; }
+    button:hover {
+      background: #2563eb;
+    }
+
+    .admin { background: #ef4444; }
+    .help { background: #10b981; }
+    .strategy { background: #f59e0b; }
+    .signup { background: #8b5cf6; }
   </style>
 </head>
 
 <body>
 
 <div class="header">
-🚀 AI TRADING BOT DASHBOARD
+🚀 TRADING BOT DASHBOARD
 </div>
 
-<!-- 📊 CHART -->
-<div id="chart"></div>
-
-<div class="grid">
-
-  <!-- 📊 SIGNAL -->
-  <div class="box">
-    <h3>📊 Signal IA</h3>
-    <p id="signal">Loading...</p>
-    <p id="confidence"></p>
-  </div>
-
-  <!-- 🧠 STRATEGY -->
-  <div class="box">
-    <h3>🧠 Strategy</h3>
-    <p id="strategy">Loading...</p>
-  </div>
-
-  <!-- 👨‍💼 ADMIN -->
-  <div class="box">
-    <h3>👨‍💼 Admin Panel</h3>
-
-    <p id="adminMsg">Loading...</p>
-
-    <input id="msg" placeholder="Admin message">
-    <button class="admin" onclick="updateAdmin()">Update</button>
-  </div>
-
+<!-- 📢 ANNONCE BOT -->
+<div class="box">
+  <h3>📢 Annonce du Bot</h3>
+  <p id="announcement">Chargement...</p>
 </div>
 
-<!-- 🔐 LOGIN -->
-<div class="box" style="margin:10px;">
-  <h3>🔐 Admin Login</h3>
-  <input id="pass" type="password" placeholder="Password">
-  <button class="login" onclick="login()">Login</button>
+<!-- 🤖 STATUS BOT -->
+<div class="box">
+  <h3>🤖 Statut du Bot</h3>
+  <p id="status">🟢 Actif et analyse en temps réel</p>
+</div>
+
+<!-- 👨‍💼 ADMIN -->
+<div class="box">
+  <h3>👨‍💼 Message Admin</h3>
+  <p id="adminMessage">Aucun message</p>
+  <button class="admin" onclick="contactAdmin()">Contacter Admin</button>
+</div>
+
+<!-- 📞 CONTACT -->
+<div class="box">
+  <h3>📞 Contact</h3>
+  <p>Support : Telegram / WhatsApp / Email</p>
+  <button onclick="openContact()">Ouvrir Contact</button>
+</div>
+
+<!-- ❓ AIDE -->
+<div class="box">
+  <h3>❓ Comment le bot marche</h3>
+  <p>Le bot analyse le marché, détecte tendance et envoie des signaux BUY / SELL automatiquement.</p>
+  <button class="help" onclick="showHelp()">Voir explication complète</button>
+</div>
+
+<!-- 📊 STRATÉGIES -->
+<div class="box">
+  <h3>📊 Stratégies</h3>
+  <ul>
+    <li>🔥 Momentum Trend</li>
+    <li>📉 Reversal Zones</li>
+    <li>⚡ Breakout Detection</li>
+    <li>⭐ Price Action Smart</li>
+  </ul>
+  <button class="strategy" onclick="showStrategy()">Détails stratégies</button>
+</div>
+
+<!-- 🧠 INSCRIPTION -->
+<div class="box">
+  <h3>🧠 Inscription</h3>
+  <p>Rejoindre le bot via le lien officiel :</p>
+  <button class="signup" onclick="signup()">S'inscrire</button>
+  <p>ID utilisateur : <span id="userId">---</span></p>
 </div>
 
 <script>
 
-const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-  layout:{ background:{ color:'#0b1220' }, textColor:'white' },
-  grid:{ vertLines:{ color:'#222' }, horzLines:{ color:'#222' } }
-});
+  // 🔥 ANNOUNCEMENT BOT
+  document.getElementById("announcement").innerText =
+    "🚀 Nouveau système IA activé + analyse améliorée";
 
-const candleSeries = chart.addCandlestickSeries();
+  // 👤 USER ID (simulation)
+  document.getElementById("userId").innerText = "USER-102938";
 
-let symbol = "BTCUSDT";
+  // 👨‍💼 ADMIN MESSAGE
+  document.getElementById("adminMessage").innerText =
+    "📢 Mise à jour prévue aujourd’hui à 22h";
 
-/* =========================
-   📊 LOAD CHART
-========================= */
-async function loadChart(){
-  const res = await fetch("https://api.binance.com/api/v3/klines?symbol="+symbol+"&interval=1m&limit=100");
-  const data = await res.json();
+  // 📞 CONTACT
+  function openContact() {
+    alert("Ouverture du support...");
+    window.open("https://t.me/your_support", "_blank");
+  }
 
-  candleSeries.setData(data.map(c=>({
-    time:c[0]/1000,
-    open:+c[1],
-    high:+c[2],
-    low:+c[3],
-    close:+c[4]
-  })));
-}
+  // 👨‍💼 ADMIN CONTACT
+  function contactAdmin() {
+    window.open("https://t.me/admin_account", "_blank");
+  }
 
-loadChart();
+  // ❓ HELP
+  function showHelp() {
+    alert(
+      "Le bot analyse les chandeliers, détecte la tendance et envoie des signaux automatiques basés sur la stratégie IA."
+    );
+  }
 
-/* =========================
-   🔥 LIVE + SIGNAL
-========================= */
-setInterval(async ()=>{
+  // 📊 STRATEGY
+  function showStrategy() {
+    alert(
+      "Stratégies combinées : RSI + Trend + Support/Resistance + Momentum."
+    );
+  }
 
-  const res = await fetch("https://api.binance.com/api/v3/klines?symbol="+symbol+"&interval=1m&limit=1");
-  const data = await res.json();
-  const c = data[0];
-
-  candleSeries.update({
-    time:c[0]/1000,
-    open:+c[1],
-    high:+c[2],
-    low:+c[3],
-    close:+c[4]
-  });
-
-  const sig = await fetch("/api/signal");
-  const s = await sig.json();
-
-  document.getElementById("signal").innerText = s.signal;
-  document.getElementById("strategy").innerText = s.strategy;
-  document.getElementById("confidence").innerText = "Confidence: "+s.confidence+"%";
-
-},2000);
-
-/* =========================
-   🔐 LOGIN
-========================= */
-async function login(){
-  const password = document.getElementById("pass").value;
-
-  const res = await fetch("/api/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({password})
-  });
-
-  alert(res.ok ? "Login OK" : "Wrong password");
-}
-
-/* =========================
-   👨‍💼 ADMIN
-========================= */
-async function loadAdmin(){
-  const res = await fetch("/api/admin-message");
-  const data = await res.json();
-  document.getElementById("adminMsg").innerText = data.message;
-}
-
-loadAdmin();
-
-async function updateAdmin(){
-  const msg = document.getElementById("msg").value;
-
-  await fetch("/api/admin-message",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({message:msg})
-  });
-
-  loadAdmin();
-}
+  // 🧠 SIGNUP LINK
+  function signup() {
+    window.open("https://your-signup-link.com", "_blank");
+  }
 
 </script>
 
