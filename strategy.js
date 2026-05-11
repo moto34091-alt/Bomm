@@ -1,10 +1,42 @@
-function analyze() {
+const { getCandles } =
+require("./market");
 
-    const signals = ["CALL", "PUT", "WAIT"];
+const { calculateRSI } =
+require("./rsi");
 
-    const random = Math.floor(Math.random() * signals.length);
+async function analyzeMarket(
+    symbol,
+    timeframe
+) {
 
-    return signals[random];
+    const candles =
+        await getCandles(
+            symbol,
+            timeframe
+        );
+
+    const closes =
+        candles.map(c => c[4]);
+
+    const rsi =
+        calculateRSI(closes);
+
+    let signal = "WAIT";
+
+    if (rsi < 30) {
+        signal = "CALL";
+    }
+
+    if (rsi > 70) {
+        signal = "PUT";
+    }
+
+    return {
+        rsi,
+        signal
+    };
 }
 
-module.exports = { analyze };
+module.exports = {
+    analyzeMarket
+};
