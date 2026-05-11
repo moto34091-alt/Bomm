@@ -2,85 +2,157 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trading Mini App</title>
+<title>AI TRADING</title>
 
 <style>
 body {
+    margin:0;
     font-family: Arial;
     background:#0f172a;
     color:white;
     text-align:center;
-    padding:20px;
 }
 
-.card {
-    background:#1e293b;
-    margin:10px;
-    padding:15px;
-    border-radius:12px;
+/* animation écran */
+.screen {
+    display:none;
+    padding:20px;
+    animation: fade 0.4s ease;
+}
+
+.active {
+    display:block;
+}
+
+@keyframes fade {
+    from {opacity:0; transform:translateY(10px);}
+    to {opacity:1; transform:translateY(0);}
 }
 
 button {
     padding:12px;
+    margin:6px;
     border:none;
     border-radius:10px;
-    margin:5px;
+    font-size:16px;
     cursor:pointer;
 }
 
+.blue { background:#3b82f6; color:white; }
 .green { background:#22c55e; color:white; }
 .red { background:#ef4444; color:white; }
-.blue { background:#3b82f6; color:white; }
+
+.card {
+    background:#1e293b;
+    padding:15px;
+    margin:10px;
+    border-radius:12px;
+}
+
+/* loading */
+.loader {
+    border:4px solid #333;
+    border-top:4px solid #22c55e;
+    border-radius:50%;
+    width:40px;
+    height:40px;
+    animation: spin 1s linear infinite;
+    margin:auto;
+}
+
+@keyframes spin {
+    100% {transform:rotate(360deg);}
+}
 </style>
 </head>
 
 <body>
 
-<h2>📊 AI TRADING MINI APP</h2>
-
-<div class="card">
-    <h3>💎 Marché</h3>
-    <button onclick="market('EUR/USD')">EUR/USD</button>
-    <button onclick="market('BTC/USD')">BTC/USD</button>
+<!-- START -->
+<div id="start" class="screen active">
+    <h2>🤖 AI TRADING BOT</h2>
+    <button class="blue" onclick="stepMarket()">🚀 START ANALYSIS</button>
 </div>
 
-<div class="card">
-    <h3>⏱ Timeframe</h3>
-    <button onclick="time('5s')">5s</button>
-    <button onclick="time('1m')">1m</button>
+<!-- MARKET -->
+<div id="market" class="screen">
+    <h3>💎 CHOISIR MARCHÉ</h3>
+
+    <button onclick="setMarket('BTC/USDT')">BTC</button>
+    <button onclick="setMarket('ETH/USDT')">ETH</button>
+    <button onclick="setMarket('BNB/USDT')">BNB</button>
 </div>
 
-<div class="card">
-    <button class="blue" onclick="analyze()">🔍 ANALYSER</button>
+<!-- TIME -->
+<div id="time" class="screen">
+    <h3>⏱ TIMEFRAME</h3>
+
+    <button onclick="setTime('5s')">5s</button>
+    <button onclick="setTime('1m')">1m</button>
+    <button onclick="setTime('5m')">5m</button>
 </div>
 
-<div class="card">
-    <h2 id="signal">SIGNAL: ...</h2>
-    <p id="rsi">RSI: ...</p>
-    <p id="momentum">Momentum: ...</p>
+<!-- ANALYSIS -->
+<div id="analysis" class="screen">
+    <h3>📊 ANALYSE IA</h3>
+    <div class="loader"></div>
+    <p>Analyse en cours...</p>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+    <h2 id="signal">SIGNAL</h2>
+    <p id="rsi">RSI</p>
+    <p id="momentum">Momentum</p>
 </div>
 
 <script>
 
-let m = "";
-let t = "";
+let market = "";
+let time = "";
 
-function market(x){ m = x; }
-function time(x){ t = x; }
+// =====================
+function show(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
 
-async function analyze(){
+// =====================
+function stepMarket() {
+    show("market");
+}
 
-    const res = await fetch("/api/signal");
-    const data = await res.json();
+// =====================
+function setMarket(m) {
+    market = m;
+    show("time");
+}
 
-    document.getElementById("signal").innerText =
-        data.emoji + " " + data.signal;
+// =====================
+function setTime(t) {
+    time = t;
+    runAnalysis();
+}
 
-    document.getElementById("rsi").innerText =
-        "RSI: " + data.rsi;
+// =====================
+async function runAnalysis() {
 
-    document.getElementById("momentum").innerText =
-        "Momentum: " + data.momentum;
+    show("analysis");
+
+    setTimeout(async () => {
+
+        const res = await fetch("/api/signal");
+        const data = await res.json();
+
+        document.getElementById("rsi").innerText = "RSI: " + data.rsi;
+        document.getElementById("momentum").innerText = "Momentum: " + data.momentum;
+
+        document.getElementById("signal").innerText =
+            data.emoji + " " + data.signal;
+
+        show("result");
+
+    }, 2000);
 }
 
 </script>
