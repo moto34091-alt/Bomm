@@ -2,18 +2,27 @@ require("dotenv").config();
 
 const express = require("express");
 const TelegramBot = require("node-telegram-bot-api");
+const path = require("path");
 
 const app = express();
 
+// ===============================
+// 🤖 TELEGRAM BOT
+// ===============================
 const bot = new TelegramBot(process.env.BOT_TOKEN, {
     polling: true
 });
 
 // ===============================
-// 📊 DATA LIVE
+// 📁 FRONTEND STATIC
 // ===============================
-let latest = {
-    market: "EUR/USD OTC",
+app.use(express.static("public"));
+
+// ===============================
+// 📊 LIVE DATA
+// ===============================
+let data = {
+    market: "EUR/USD",
     timeframe: "1m",
     rsi: 0,
     momentum: "NEUTRE",
@@ -22,7 +31,7 @@ let latest = {
 };
 
 // ===============================
-// 📈 RSI CALCUL
+// 📈 RSI FUNCTION
 // ===============================
 function calculateRSI(closes, period = 14) {
 
@@ -43,21 +52,11 @@ function calculateRSI(closes, period = 14) {
 }
 
 // ===============================
-// 🔥 EMOJI TREND
-// ===============================
-function getTrendEmoji(signal) {
-
-    if (signal === "CALL") return "🟢📈 HAUSSIÈRE";
-    if (signal === "PUT") return "🔴📉 BAISSIÈRE";
-    return "🟡⏸ NEUTRE";
-}
-
-// ===============================
-// 🟢 MENU
+// 🟢 MENU BOT
 // ===============================
 function menu(chatId) {
 
-    bot.sendMessage(chatId, "🤖 OTC BOT PRO", {
+    bot.sendMessage(chatId, "🤖 OTC BOT READY", {
         reply_markup: {
             keyboard: [
                 ["📊 Signal OTC"],
@@ -93,11 +92,11 @@ bot.onText(/📊 Signal OTC/, (msg) => {
 });
 
 // ===============================
-// 💎 MARKET
+// 💎 MARKET SELECT
 // ===============================
 bot.onText(/EUR\/USD|GBP\/USD|BTC\/USD/, (msg) => {
 
-    latest.market = msg.text;
+    data.market = msg.text;
 
     bot.sendMessage(msg.chat.id, "⏱ Choisir timeframe", {
         reply_markup: {
@@ -118,7 +117,7 @@ bot.onText(/5s|15s|1m|5m|15m/, (msg) => {
 
     const chatId = msg.chat.id;
 
-    latest.timeframe = msg.text;
+    data.timeframe = msg.text;
 
     // 🔥 SIMULATION PRIX
     const closes = [];
@@ -144,11 +143,9 @@ bot.onText(/5s|15s|1m|5m|15m/, (msg) => {
 
     const confidence = Math.floor(Math.random() * 20) + 80;
 
-    const trend = getTrendEmoji(signal);
-
-    latest = {
-        market: latest.market,
-        timeframe: latest.timeframe,
+    data = {
+        market: data.market,
+        timeframe: data.timeframe,
         rsi: rsi.toFixed(2),
         momentum,
         signal,
@@ -156,72 +153,62 @@ bot.onText(/5s|15s|1m|5m|15m/, (msg) => {
     };
 
     bot.sendMessage(chatId, `
-📊 SIGNAL OTC FINAL
+📊 SIGNAL FINAL
 
-💎 Market: ${latest.market}
-⏱ Timeframe: ${latest.timeframe}
+💎 Market: ${data.market}
+⏱ Timeframe: ${data.timeframe}
 
 📈 RSI: ${rsi.toFixed(2)}
+⚡ Momentum: ${momentum}
 
-⚡ Momentum: ${momentum === "HAUSSIER" ? "📈 🟢 HAUSSIER" : "📉 🔴 BAISSIER"}
-
-🔥 SIGNAL:
-${trend}
-
+🔥 SIGNAL: ${signal}
 🧠 Confidence: ${confidence}%
     `);
 });
 
 // ===============================
-// 📈 DASHBOARD WEB
+// 📈 DASHBOARD WEB ROUTE
 // ===============================
 app.get("/", (req, res) => {
 
     res.send(`
-    <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>OTC Dashboard</title>
-        <style>
-            body {
-                font-family: Arial;
-                background: #0f172a;
-                color: white;
-                text-align: center;
-                padding: 20px;
-            }
-            .box {
-                background: #1e293b;
-                padding: 15px;
-                margin: 10px;
-                border-radius: 10px;
-            }
-            .buy { color: #22c55e; font-size: 22px; font-weight: bold; }
-            .sell { color: #ef4444; font-size: 22px; font-weight: bold; }
-        </style>
-    </head>
-    <body>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OTC Dashboard</title>
+<style>
+body { font-family: Arial; background:#0f172a; color:white; text-align:center; padding:20px; }
+.box { background:#1e293b; margin:10px; padding:15px; border-radius:10px; }
+.buy { color:#22c55e; font-size:22px; font-weight:bold; }
+.sell { color:#ef4444; font-size:22px; font-weight:bold; }
+</style>
+</head>
 
-        <h2>📊 OTC LIVE DASHBOARD</h2>
+<body>
 
-        <div class="box">💎 Market: ${latest.market}</div>
-        <div class="box">⏱ Timeframe: ${latest.timeframe}</div>
-        <div class="box">📈 RSI: ${latest.rsi}</div>
-        <div class="box">⚡ Momentum: ${latest.momentum}</div>
-        <div class="box">🧠 Confidence: ${latest.confidence}%</div>
+<h2>📊 OTC LIVE DASHBOARD</h2>
 
-        <div class="box ${latest.signal === "PUT" ? "sell" : "buy"}">
-            📊 SIGNAL: ${latest.signal}
-        </div>
+<div class="box">💎 Market: ${data.market}</div>
+<div class="box">⏱ Timeframe: ${data.timeframe}</div>
+<div class="box">📈 RSI: ${data.rsi}</div>
+<div class="box">⚡ Momentum: ${data.momentum}</div>
+<div class="box">🧠 Confidence: ${data.confidence}%</div>
 
-    </body>
-    </html>
+<div class="box ${data.signal === "PUT" ? "sell" : "buy"}">
+📊 SIGNAL: ${data.signal}
+</div>
+
+</body>
+</html>
     `);
 });
 
 // ===============================
 // 🚀 SERVER START
 // ===============================
-app.listen(process.env.PORT || 3000, () => {
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
     console.log("🚀 BOT + DASHBOARD ONLINE");
 });
