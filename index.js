@@ -2,156 +2,63 @@ require("dotenv").config();
 
 const TelegramBot = require("node-telegram-bot-api");
 
+const { calculateRSI } = require("./rsi");
+const { app, updateDashboard } = require("./dashboard");
+
 const bot = new TelegramBot(process.env.BOT_TOKEN, {
     polling: true
 });
 
 // ===============================
-// 👑 CONFIG
+// DATA USER
 // ===============================
-const OWNER_ID = 5161872804;
-
-const CHANNEL = "@binance_trading10";
-
-const CHANNEL_LINK =
-    "https://t.me/binance_trading10";
+let userData = {};
 
 // ===============================
-// 📊 DATA
-// ===============================
-const userData = {};
-
-// ===============================
-// 🔐 CHECK MEMBER
-// ===============================
-async function isMember(userId) {
-
-    if (userId === OWNER_ID) {
-        return true;
-    }
-
-    try {
-
-        const res = await bot.getChatMember(
-            CHANNEL,
-            userId
-        );
-
-        return [
-            "member",
-            "administrator",
-            "creator"
-        ].includes(res.status);
-
-    } catch (err) {
-
-        console.log(err.message);
-
-        return false;
-    }
-}
-
-// ===============================
-// 🟢 MENU
+// MENU
 // ===============================
 function menu(chatId) {
-
-    bot.sendMessage(chatId,
-
-`🤖 OTC AI SIGNAL BOT
-
-📊 Analyse intelligente OTC
-🧠 IA Prediction
-📈 RSI + Momentum
-🔥 Trend Scanner`, {
-
+    bot.sendMessage(chatId, "🤖 OTC BOT", {
         reply_markup: {
-
             keyboard: [
-
                 ["📊 Signal OTC"],
-
-                ["📈 Dashboard"],
-
-                ["🧠 IA Status"],
-
-                ["ℹ️ Aide"]
-
+                ["📈 Dashboard"]
             ],
-
             resize_keyboard: true
         }
     });
 }
 
 // ===============================
-// 🚀 START
+// START
 // ===============================
-bot.onText(/\/start/, async (msg) => {
-
-    const chatId = msg.chat.id;
-
-    const userId = msg.from.id;
-
-    const member =
-        await isMember(userId);
-
-    if (!member) {
-
-        return bot.sendMessage(chatId,
-
-`🚀 ACCÈS BLOQUÉ
-
-Rejoins le canal :
-
-👉 ${CHANNEL_LINK}
-
-Puis relance /start`
-        );
-    }
-
-    menu(chatId);
+bot.onText(/\/start/, (msg) => {
+    menu(msg.chat.id);
 });
 
 // ===============================
-// 📊 SIGNAL OTC
+// MARKET
 // ===============================
 bot.onText(/📊 Signal OTC/, (msg) => {
 
     const chatId = msg.chat.id;
 
-    bot.sendMessage(chatId,
-
-`💎 Choisir marché OTC`, {
-
+    bot.sendMessage(chatId, "💎 Choisir marché", {
         reply_markup: {
-
             keyboard: [
-
-                ["EUR/USD OTC"],
-
-                ["GBP/USD OTC"],
-
-                ["USD/JPY OTC"],
-
-                ["BTC OTC"],
-
-                ["ETH OTC"]
-
+                ["EUR/USD"],
+                ["GBP/USD"],
+                ["BTC/USD"]
             ],
-
             resize_keyboard: true
         }
     });
 });
 
 // ===============================
-// 💎 CHOIX MARKET
+// CHOIX MARKET
 // ===============================
-bot.onText(
-/(EUR\/USD OTC|GBP\/USD OTC|USD\/JPY OTC|BTC OTC|ETH OTC)/,
-
-(msg) => {
+bot.onText(/EUR\/USD|GBP\/USD|BTC\/USD/, (msg) => {
 
     const chatId = msg.chat.id;
 
@@ -159,245 +66,86 @@ bot.onText(
         market: msg.text
     };
 
-    bot.sendMessage(chatId,
-
-`⏱ Choisir timeframe`, {
-
+    bot.sendMessage(chatId, "⏱ Choisir timeframe", {
         reply_markup: {
-
             keyboard: [
-
-                ["5s", "15s"],
-
-                ["30s", "1m"],
-
-                ["5m"]
-
+                ["1m", "5m"],
+                ["15m"]
             ],
-
             resize_keyboard: true
         }
     });
 });
 
 // ===============================
-// ⏱ TIMEFRAME
+// TIME + ANALYSE
 // ===============================
-bot.onText(
-/(5s|15s|30s|1m|5m)/,
-
-async (msg) => {
+bot.onText(/1m|5m|15m/, (msg) => {
 
     const chatId = msg.chat.id;
 
-    if (!userData[chatId]) return;
+    userData[chatId].timeframe = msg.text;
 
-    userData[chatId].timeframe =
-        msg.text;
+    // 🔥 SIMULATION PRIX
+    const closes = [];
 
-    // ===============================
-    // 📈 RSI
-    // ===============================
-    await bot.sendMessage(chatId,
+    for (let i = 0; i < 15; i++) {
+        closes.push(100 + Math.random() * 10);
+    }
 
-`📈 Calcul RSI...`);
+    const rsi = calculateRSI(closes);
 
-    await sleep(2000);
-
-    const rsi =
-        Math.floor(Math.random() * 60) + 20;
-
-    let rsiStatus = "";
+    let signal = "WAIT";
+    let momentum = "NEUTRAL";
 
     if (rsi < 30) {
-
-        rsiStatus =
-            "✅ Zone Survente";
-
-    } else if (rsi > 70) {
-
-        rsiStatus =
-            "⚠️ Zone Surachat";
-
-    } else {
-
-        rsiStatus =
-            "✅ RSI Stable";
+        signal = "CALL";
+        momentum = "HAUSSIER";
     }
 
-    await bot.sendMessage(chatId,
-
-`📈 RSI = ${rsi}
-
-${rsiStatus}`);
-
-    // ===============================
-    // ⚡ MOMENTUM
-    // ===============================
-    await sleep(2000);
-
-    await bot.sendMessage(chatId,
-
-`⚡ Analyse Momentum...`);
-
-    await sleep(2000);
-
-    const momentum =
-        Math.random() > 0.5
-        ? "HAUSSIER"
-        : "BAISSIER";
-
-    await bot.sendMessage(chatId,
-
-`⚡ Momentum :
-
-${momentum}`);
-
-    // ===============================
-    // 🧠 IA ANALYSE
-    // ===============================
-    await sleep(2000);
-
-    await bot.sendMessage(chatId,
-
-`🧠 Analyse IA...`);
-
-    await sleep(3000);
-
-    // ===============================
-    // 📊 FINAL SIGNAL
-    // ===============================
-    let finalSignal = "";
-
-    if (
-        rsi < 35 &&
-        momentum === "HAUSSIER"
-    ) {
-
-        finalSignal =
-            "🟢 HAUSSIÈRE (CALL)";
-
-    } else if (
-        rsi > 65 &&
-        momentum === "BAISSIER"
-    ) {
-
-        finalSignal =
-            "🔴 BAISSIÈRE (PUT)";
-
-    } else {
-
-        finalSignal =
-            Math.random() > 0.5
-            ? "🟢 HAUSSIÈRE (CALL)"
-            : "🔴 BAISSIÈRE (PUT)";
+    if (rsi > 70) {
+        signal = "PUT";
+        momentum = "BAISSIER";
     }
 
-    const confidence =
-        Math.floor(Math.random() * 15) + 80;
+    const confidence = Math.floor(Math.random() * 20) + 80;
 
-    await bot.sendMessage(chatId,
+    // 📊 UPDATE DASHBOARD
+    updateDashboard({
+        market: userData[chatId].market,
+        timeframe: userData[chatId].timeframe,
+        rsi: rsi.toFixed(2),
+        signal,
+        momentum,
+        confidence
+    });
 
-`📊 SIGNAL OTC FINAL
+    bot.sendMessage(chatId, `
+📊 SIGNAL FINAL
 
-💎 Marché :
-${userData[chatId].market}
+💎 Market: ${userData[chatId].market}
+⏱ Time: ${userData[chatId].timeframe}
 
-⏱ Temps :
-${userData[chatId].timeframe}
+📈 RSI: ${rsi.toFixed(2)}
+⚡ Momentum: ${momentum}
 
-📈 RSI :
-${rsi}
-
-⚡ Momentum :
-${momentum}
-
-🧠 IA :
-Analyse terminée
-
-🔥 Confiance :
-${confidence}%
-
-${finalSignal}`
-    );
-
-    menu(chatId);
+🔥 SIGNAL: ${signal}
+🧠 Confidence: ${confidence}%
+`);
 });
 
 // ===============================
-// 📈 DASHBOARD
+// DASHBOARD
 // ===============================
 bot.onText(/📈 Dashboard/, (msg) => {
-
     bot.sendMessage(msg.chat.id,
-
-`📈 DASHBOARD OTC
-
-🟢 Marché : ACTIF
-
-📊 Scanner : ONLINE
-
-🧠 IA Engine : RUNNING
-
-🔥 Smart Money : ACTIVE
-
-⚡ Momentum Scanner : ACTIVE`
+        "📊 Ouvre ton dashboard :\n\n👉 Railway link après deploy"
     );
 });
 
 // ===============================
-// 🧠 IA STATUS
+// SERVER DASHBOARD
 // ===============================
-bot.onText(/🧠 IA Status/, (msg) => {
-
-    bot.sendMessage(msg.chat.id,
-
-`🧠 IA STATUS
-
-✅ RSI Scanner : OK
-
-✅ Momentum Engine : OK
-
-✅ Smart Trend : OK
-
-✅ Volatility Scan : OK
-
-🔥 OTC AI READY`
-    );
+app.listen(process.env.PORT || 3000, () => {
+    console.log("🚀 Bot + Dashboard ON");
 });
-
-// ===============================
-// ℹ️ AIDE
-// ===============================
-bot.onText(/ℹ️ Aide/, (msg) => {
-
-    bot.sendMessage(msg.chat.id,
-
-`🤖 OTC AI SIGNAL BOT
-
-📊 OTC Signals
-🧠 IA Prediction
-📈 RSI Scanner
-⚡ Momentum
-🔥 Trend Detection
-
-⚠️ Tester en démo avant réel`
-    );
-});
-
-// ===============================
-// 💤 SLEEP
-// ===============================
-function sleep(ms) {
-
-    return new Promise(resolve =>
-        setTimeout(resolve, ms)
-    );
-}
-
-// ===============================
-// 🚀 ONLINE
-// ===============================
-console.log(
-"🚀 OTC AI BOT ONLINE"
-);
