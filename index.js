@@ -58,7 +58,7 @@ function analyze() {
 // ============================
 bot.onText(/\/start/, (msg) => {
 
-    bot.sendMessage(msg.chat.id, "🚀 🚀 AI TRADING BOT PRO
+    bot.sendMessage(msg.chat.id, "
 📊 Analyse intelligente du marché en temps réel
 🤖 Signaux IA BUY / SELL automatiques
 📈 Graphique live style TradingView
@@ -74,7 +74,7 @@ Channel : signalstradings_bot
             inline_keyboard: [
                 [
                     {
-                        text: "📊 BOT TRADING",
+                        text: "📊 OPEN DASHBOARD",
                         web_app: {
                             url: "https://bomm-ttt.up.railway.app"
                         }
