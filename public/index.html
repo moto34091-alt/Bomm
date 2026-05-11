@@ -1,520 +1,190 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>AI Trading Bot</title>
 
-<title>AI TRADING PRO</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body { margin:0; font-family:Arial; background:#0b1220; color:white; }
 
-<style>
-
-body{
-    margin:0;
-    font-family:Arial;
-    background:radial-gradient(circle at top,#1e3a8a,#0f172a,#020617);
-    color:white;
-    overflow-x:hidden;
-}
-
-/* SCREEN */
-.screen{
-    display:none;
-    padding:20px;
-    animation:fade .4s ease;
-}
-
-.active{
-    display:block;
-}
-
-@keyframes fade{
-    from{
-        opacity:0;
-        transform:translateY(10px);
+    .header {
+      background:#111827;
+      padding:15px;
+      text-align:center;
+      font-weight:bold;
     }
 
-    to{
-        opacity:1;
-        transform:translateY(0);
+    #chart {
+      height:400px;
     }
-}
 
-/* TITLE */
-.title{
-    text-align:center;
-    font-size:28px;
-    font-weight:bold;
-    margin-top:15px;
-}
-
-/* 3D CARD */
-.card{
-    background:rgba(30,41,59,.9);
-    border-radius:18px;
-    padding:18px;
-    margin-top:15px;
-
-    box-shadow:
-        0 10px 25px rgba(0,0,0,.5),
-        inset 0 1px 1px rgba(255,255,255,.08);
-
-    border:1px solid rgba(255,255,255,.08);
-
-    backdrop-filter: blur(10px);
-}
-
-/* BUTTON */
-button{
-    border:none;
-    padding:14px 18px;
-    border-radius:14px;
-    margin:6px;
-    cursor:pointer;
-    font-size:16px;
-    transition:.2s;
-    font-weight:bold;
-}
-
-button:hover{
-    transform:scale(1.08) translateY(-2px);
-
-    box-shadow:
-        0 10px 20px rgba(0,0,0,.4);
-}
-
-/* COLORS */
-.blue{
-    background:linear-gradient(135deg,#3b82f6,#2563eb);
-    color:white;
-}
-
-.green{
-    background:linear-gradient(135deg,#22c55e,#16a34a);
-    color:white;
-}
-
-.red{
-    background:linear-gradient(135deg,#ef4444,#dc2626);
-    color:white;
-}
-
-.orange{
-    background:linear-gradient(135deg,#f59e0b,#d97706);
-    color:white;
-}
-
-.purple{
-    background:linear-gradient(135deg,#a855f7,#7e22ce);
-    color:white;
-}
-
-/* CHART */
-#chart{
-    width:100%;
-    height:350px;
-}
-
-/* LOADER */
-.loader{
-    border:4px solid #333;
-    border-top:4px solid #22c55e;
-    border-radius:50%;
-    width:45px;
-    height:45px;
-    animation:spin 1s linear infinite;
-    margin:auto;
-}
-
-@keyframes spin{
-    100%{
-        transform:rotate(360deg);
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      padding:10px;
     }
-}
 
-/* RESULT */
-.result{
-    font-size:24px;
-    font-weight:bold;
-    margin-top:15px;
-}
+    .box {
+      background:#1f2937;
+      padding:10px;
+      border-radius:10px;
+    }
 
-.info{
-    font-size:18px;
-    margin-top:10px;
-}
+    input, button {
+      width:100%;
+      padding:6px;
+      margin-top:5px;
+      border:none;
+      border-radius:8px;
+    }
 
-.center{
-    text-align:center;
-}
+    button {
+      cursor:pointer;
+      color:white;
+    }
 
-</style>
+    .login { background:#3b82f6; }
+    .admin { background:#f59e0b; }
+  </style>
 </head>
 
 <body>
 
-<div class="title">
-📊 AI TRADING PRO
+<div class="header">
+🚀 AI TRADING BOT DASHBOARD
 </div>
 
-<!-- START -->
-<div id="start" class="screen active center">
+<!-- 📊 CHART -->
+<div id="chart"></div>
 
-    <div class="card">
+<div class="grid">
 
-        <h2>🚀 Trading Dashboard</h2>
+  <!-- 📊 SIGNAL -->
+  <div class="box">
+    <h3>📊 Signal IA</h3>
+    <p id="signal">Loading...</p>
+    <p id="confidence"></p>
+  </div>
 
-        <p>
-            Analyse intelligente OTC
-        </p>
+  <!-- 🧠 STRATEGY -->
+  <div class="box">
+    <h3>🧠 Strategy</h3>
+    <p id="strategy">Loading...</p>
+  </div>
 
-        <button class="blue" onclick="goMarket()">
-            ▶ DÉMARRER
-        </button>
+  <!-- 👨‍💼 ADMIN -->
+  <div class="box">
+    <h3>👨‍💼 Admin Panel</h3>
 
-    </div>
+    <p id="adminMsg">Loading...</p>
 
-</div>
-
-<!-- MARKET -->
-<div id="market" class="screen center">
-
-    <div class="card">
-
-        <h2>💎 Choisir Marché OTC</h2>
-
-        <button class="orange" onclick="setMarket('BTCUSDT')">BTC OTC</button>
-
-        <button class="green" onclick="setMarket('ETHUSDT')">ETH OTC</button>
-
-        <button class="purple" onclick="setMarket('BNBUSDT')">BNB OTC</button>
-
-        <button class="blue" onclick="setMarket('SOLUSDT')">SOL OTC</button>
-
-        <button class="red" onclick="setMarket('XRPUSDT')">XRP OTC</button>
-
-        <button class="green" onclick="setMarket('ADAUSDT')">ADA OTC</button>
-
-        <button class="purple" onclick="setMarket('DOGEUSDT')">DOGE OTC</button>
-
-        <button class="orange" onclick="setMarket('TRXUSDT')">TRX OTC</button>
-
-        <button class="blue" onclick="setMarket('LTCUSDT')">LTC OTC</button>
-
-        <button class="red" onclick="setMarket('AVAXUSDT')">AVAX OTC</button>
-
-        <button class="green" onclick="setMarket('MATICUSDT')">MATIC OTC</button>
-
-        <button class="purple" onclick="setMarket('DOTUSDT')">DOT OTC</button>
-
-    </div>
+    <input id="msg" placeholder="Admin message">
+    <button class="admin" onclick="updateAdmin()">Update</button>
+  </div>
 
 </div>
 
-<!-- TIME -->
-<div id="time" class="screen center">
-
-    <div class="card">
-
-        <h2>⏱ Choisir Timeframe</h2>
-
-        <button class="orange" onclick="setTime('5s')">5 SEC</button>
-
-        <button class="orange" onclick="setTime('15s')">15 SEC</button>
-
-        <button class="orange" onclick="setTime('30s')">30 SEC</button>
-
-        <button class="blue" onclick="setTime('1m')">1 MIN</button>
-
-        <button class="green" onclick="setTime('5m')">5 MIN</button>
-
-    </div>
-
-</div>
-
-<!-- ANALYSIS -->
-<div id="analysis" class="screen center">
-
-    <div class="card">
-
-        <h2>📊 Analyse IA</h2>
-
-        <div class="loader"></div>
-
-        <p>
-            RSI + Momentum + Smart Money...
-        </p>
-
-    </div>
-
-</div>
-
-<!-- RESULT -->
-<div id="result" class="screen">
-
-    <div class="card center">
-
-        <h2 id="signal">
-            SIGNAL
-        </h2>
-
-        <div class="info" id="marketInfo"></div>
-
-        <div class="info" id="timeInfo"></div>
-
-        <div class="info" id="rsi"></div>
-
-        <div class="info" id="momentum"></div>
-
-        <div class="info" id="strategy"></div>
-
-        <div class="result" id="final"></div>
-
-    </div>
-
-    <div class="card">
-
-        <h2>
-            📈 Chandeliers Binance Live
-        </h2>
-
-        <div id="chart"></div>
-
-    </div>
-
-    <div class="center">
-
-        <button class="blue" onclick="restart()">
-            🔄 Nouvelle Analyse
-        </button>
-
-    </div>
-
+<!-- 🔐 LOGIN -->
+<div class="box" style="margin:10px;">
+  <h3>🔐 Admin Login</h3>
+  <input id="pass" type="password" placeholder="Password">
+  <button class="login" onclick="login()">Login</button>
 </div>
 
 <script>
 
-let selectedMarket = "BTCUSDT";
-let selectedTime = "1m";
+const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+  layout:{ background:{ color:'#0b1220' }, textColor:'white' },
+  grid:{ vertLines:{ color:'#222' }, horzLines:{ color:'#222' } }
+});
 
-let chart;
-let candleSeries;
+const candleSeries = chart.addCandlestickSeries();
 
-// ======================
-// SCREEN
-// ======================
-function show(id){
+let symbol = "BTCUSDT";
 
-    document.querySelectorAll(".screen")
-    .forEach(s => s.classList.remove("active"));
+/* =========================
+   📊 LOAD CHART
+========================= */
+async function loadChart(){
+  const res = await fetch("https://api.binance.com/api/v3/klines?symbol="+symbol+"&interval=1m&limit=100");
+  const data = await res.json();
 
-    document.getElementById(id)
-    .classList.add("active");
+  candleSeries.setData(data.map(c=>({
+    time:c[0]/1000,
+    open:+c[1],
+    high:+c[2],
+    low:+c[3],
+    close:+c[4]
+  })));
 }
 
-// ======================
-// START
-// ======================
-function goMarket(){
-    show("market");
+loadChart();
+
+/* =========================
+   🔥 LIVE + SIGNAL
+========================= */
+setInterval(async ()=>{
+
+  const res = await fetch("https://api.binance.com/api/v3/klines?symbol="+symbol+"&interval=1m&limit=1");
+  const data = await res.json();
+  const c = data[0];
+
+  candleSeries.update({
+    time:c[0]/1000,
+    open:+c[1],
+    high:+c[2],
+    low:+c[3],
+    close:+c[4]
+  });
+
+  const sig = await fetch("/api/signal");
+  const s = await sig.json();
+
+  document.getElementById("signal").innerText = s.signal;
+  document.getElementById("strategy").innerText = s.strategy;
+  document.getElementById("confidence").innerText = "Confidence: "+s.confidence+"%";
+
+},2000);
+
+/* =========================
+   🔐 LOGIN
+========================= */
+async function login(){
+  const password = document.getElementById("pass").value;
+
+  const res = await fetch("/api/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({password})
+  });
+
+  alert(res.ok ? "Login OK" : "Wrong password");
 }
 
-// ======================
-// MARKET
-// ======================
-function setMarket(m){
-
-    selectedMarket = m;
-
-    show("time");
+/* =========================
+   👨‍💼 ADMIN
+========================= */
+async function loadAdmin(){
+  const res = await fetch("/api/admin-message");
+  const data = await res.json();
+  document.getElementById("adminMsg").innerText = data.message;
 }
 
-// ======================
-// TIME
-// ======================
-function setTime(t){
+loadAdmin();
 
-    selectedTime = t;
+async function updateAdmin(){
+  const msg = document.getElementById("msg").value;
 
-    runAnalysis();
-}
+  await fetch("/api/admin-message",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message:msg})
+  });
 
-// ======================
-// RSI
-// ======================
-function calculateRSI(closes, period = 14){
-
-    let gains = 0;
-    let losses = 0;
-
-    for(let i = 1; i < period; i++){
-
-        const diff = closes[i] - closes[i - 1];
-
-        if(diff > 0){
-            gains += diff;
-        } else {
-            losses += Math.abs(diff);
-        }
-    }
-
-    const rs = gains / (losses || 1);
-
-    return 100 - (100 / (1 + rs));
-}
-
-// ======================
-// ANALYSIS
-// ======================
-async function runAnalysis(){
-
-    show("analysis");
-
-    // 🔥 ultra rapide
-    setTimeout(async ()=>{
-
-        // Binance API
-        const url =
-`https://api.binance.com/api/v3/klines?symbol=${selectedMarket}&interval=1m&limit=100`;
-
-        const response = await fetch(url);
-
-        const data = await response.json();
-
-        const candles = data.map(c => ({
-
-            time: c[0] / 1000,
-            open: parseFloat(c[1]),
-            high: parseFloat(c[2]),
-            low: parseFloat(c[3]),
-            close: parseFloat(c[4])
-
-        }));
-
-        const closes = candles.map(c => c.close);
-
-        // RSI
-        const rsi = calculateRSI(closes);
-
-        // Momentum
-        const last = closes[closes.length - 1];
-        const prev = closes[closes.length - 2];
-
-        const bullish = last > prev;
-
-        let momentum = "🟡 NEUTRE";
-
-        let signal = "WAIT";
-
-        let emoji = "🟡";
-
-        let final = "WAIT";
-
-        // ===================
-        // 🔥 STRATEGIES OTC
-        // ===================
-
-        // BUY
-        if(rsi < 45 && bullish){
-
-            momentum = "🟢 HAUSSIER";
-
-            signal = "BUY";
-
-            emoji = "🟢📈";
-
-            final = "BUY STRONG";
-        }
-
-        // SELL
-        if(rsi > 55 && !bullish){
-
-            momentum = "🔴 BAISSIER";
-
-            signal = "SELL";
-
-            emoji = "🔴📉";
-
-            final = "SELL STRONG";
-        }
-
-        // ===================
-        // UI
-        // ===================
-
-        document.getElementById("signal")
-        .innerText = `${emoji} ${signal}`;
-
-        document.getElementById("marketInfo")
-        .innerText = `💎 Marché: ${selectedMarket}`;
-
-        document.getElementById("timeInfo")
-        .innerText = `⏱ Timeframe: ${selectedTime}`;
-
-        document.getElementById("rsi")
-        .innerText = `📈 RSI: ${rsi.toFixed(2)}`;
-
-        document.getElementById("momentum")
-        .innerText = `⚡ Momentum: ${momentum}`;
-
-        document.getElementById("strategy")
-        .innerText =
-`🧠 Strategy: RSI + Momentum + Smart Money`;
-
-        document.getElementById("final")
-        .innerText = final;
-
-        // RESULT
-        show("result");
-
-        // ===================
-        // CHART
-        // ===================
-
-        document.getElementById("chart")
-        .innerHTML = "";
-
-        chart = LightweightCharts.createChart(
-
-            document.getElementById("chart"),
-
-            {
-                width: window.innerWidth - 40,
-                height: 350,
-
-                layout: {
-                    background: {
-                        color: "#111827"
-                    },
-
-                    textColor: "#ffffff"
-                },
-
-                grid: {
-                    vertLines: {
-                        color: "#1e293b"
-                    },
-
-                    horzLines: {
-                        color: "#1e293b"
-                    }
-                }
-            }
-        );
-
-        candleSeries = chart.addCandlestickSeries();
-
-        candleSeries.setData(candles);
-
-    }, 300);
-}
-
-// ======================
-// RESET
-// ======================
-function restart(){
-
-    show("start");
+  loadAdmin();
 }
 
 </script>
