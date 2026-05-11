@@ -58,12 +58,23 @@ function analyze() {
 // ============================
 bot.onText(/\/start/, (msg) => {
 
-    bot.sendMessage(msg.chat.id, "🚀 OUVRIR DASHBOARD", {
+    bot.sendMessage(msg.chat.id, "🚀 🚀 AI TRADING BOT PRO
+📊 Analyse intelligente du marché en temps réel
+🤖 Signaux IA BUY / SELL automatiques
+📈 Graphique live style TradingView
+⚡ Stratégies avancées : RSI • EMA • Momentum • Breakout
+✅ Dashboard professionnel
+✅ Analyse automatique
+✅ Mise à jour live
+✅ Interface rapide et sécurisée
+👨‍💼 Admin officiel : @Mr_dflam
+Channel : signalstradings_bot
+📢 Rejoignez le bot et recevez des signaux", {
         reply_markup: {
             inline_keyboard: [
                 [
                     {
-                        text: "📊 OPEN DASHBOARD",
+                        text: "📊 BOT TRADING",
                         web_app: {
                             url: "https://bomm-ttt.up.railway.app"
                         }
