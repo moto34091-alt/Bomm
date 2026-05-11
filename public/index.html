@@ -2,66 +2,80 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI TRADING</title>
+<title>AI TRADING PRO</title>
 
 <style>
-body {
+body{
     margin:0;
-    font-family: Arial;
-    background:#0f172a;
+    font-family:Arial;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
     color:white;
     text-align:center;
 }
 
-/* animation écran */
-.screen {
+/* SCREEN SYSTEM */
+.screen{
     display:none;
     padding:20px;
-    animation: fade 0.4s ease;
+    animation:fade .4s ease;
+}
+.active{display:block;}
+
+@keyframes fade{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
 }
 
-.active {
-    display:block;
-}
-
-@keyframes fade {
-    from {opacity:0; transform:translateY(10px);}
-    to {opacity:1; transform:translateY(0);}
-}
-
-button {
-    padding:12px;
-    margin:6px;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
-    cursor:pointer;
-}
-
-.blue { background:#3b82f6; color:white; }
-.green { background:#22c55e; color:white; }
-.red { background:#ef4444; color:white; }
-
-.card {
-    background:#1e293b;
+/* CARD */
+.card{
+    background:#111827;
     padding:15px;
     margin:10px;
-    border-radius:12px;
+    border-radius:15px;
+    box-shadow:0 0 10px rgba(0,0,0,0.3);
 }
 
-/* loading */
-.loader {
+/* BUTTONS */
+button{
+    padding:14px 18px;
+    margin:6px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+/* COLORS */
+.blue{background:#3b82f6;color:white;}
+.green{background:#22c55e;color:white;}
+.red{background:#ef4444;color:white;}
+.orange{background:#f59e0b;color:black;}
+.purple{background:#a855f7;color:white;}
+
+/* LOADER */
+.loader{
     border:4px solid #333;
     border-top:4px solid #22c55e;
     border-radius:50%;
     width:40px;
     height:40px;
-    animation: spin 1s linear infinite;
+    animation:spin 1s linear infinite;
     margin:auto;
 }
 
-@keyframes spin {
-    100% {transform:rotate(360deg);}
+@keyframes spin{
+    100%{transform:rotate(360deg);}
+}
+
+/* RESULT STYLE */
+.result-box{
+    font-size:22px;
+    margin-top:15px;
 }
 </style>
 </head>
@@ -70,89 +84,118 @@ button {
 
 <!-- START -->
 <div id="start" class="screen active">
-    <h2>🤖 AI TRADING BOT</h2>
-    <button class="blue" onclick="stepMarket()">🚀 START ANALYSIS</button>
+    <h2>🤖 AI TRADING PRO</h2>
+    <button class="blue" onclick="goMarket()">🚀 DÉMARRER ANALYSE</button>
 </div>
 
 <!-- MARKET -->
 <div id="market" class="screen">
     <h3>💎 CHOISIR MARCHÉ</h3>
 
-    <button onclick="setMarket('BTC/USDT')">BTC</button>
-    <button onclick="setMarket('ETH/USDT')">ETH</button>
-    <button onclick="setMarket('BNB/USDT')">BNB</button>
+    <button class="blue" onclick="setMarket('BTC/USDT')">BTC</button>
+    <button class="green" onclick="setMarket('ETH/USDT')">ETH</button>
+    <button class="purple" onclick="setMarket('BNB/USDT')">BNB</button>
 </div>
 
 <!-- TIME -->
 <div id="time" class="screen">
     <h3>⏱ TIMEFRAME</h3>
 
-    <button onclick="setTime('5s')">5s</button>
-    <button onclick="setTime('1m')">1m</button>
-    <button onclick="setTime('5m')">5m</button>
+    <button class="orange" onclick="setTime('5s')">5s</button>
+    <button class="orange" onclick="setTime('15s')">15s</button>
+    <button class="orange" onclick="setTime('30s')">30s</button>
+    <button class="blue" onclick="setTime('1m')">1m</button>
+    <button class="green" onclick="setTime('5m')">5m</button>
 </div>
 
 <!-- ANALYSIS -->
 <div id="analysis" class="screen">
-    <h3>📊 ANALYSE IA</h3>
+    <h3>📊 ANALYSE EN COURS</h3>
     <div class="loader"></div>
-    <p>Analyse en cours...</p>
+    <p>RSI + MOMENTUM + STRATEGY...</p>
 </div>
 
 <!-- RESULT -->
 <div id="result" class="screen">
-    <h2 id="signal">SIGNAL</h2>
-    <p id="rsi">RSI</p>
-    <p id="momentum">Momentum</p>
+    <div class="card">
+        <h2 id="signal">SIGNAL</h2>
+        <p id="rsi">RSI</p>
+        <p id="momentum">Momentum</p>
+        <p id="strategy">Strategy</p>
+
+        <div class="result-box" id="final"></div>
+    </div>
+
+    <button class="blue" onclick="restart()">🔄 RESTART</button>
 </div>
 
 <script>
 
-let market = "";
-let time = "";
+let market="";
+let time="";
 
-// =====================
-function show(id) {
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+function show(id){
+    document.querySelectorAll(".screen")
+    .forEach(s=>s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
 }
 
-// =====================
-function stepMarket() {
+// STEP 1
+function goMarket(){
     show("market");
 }
 
-// =====================
-function setMarket(m) {
-    market = m;
+// STEP 2
+function setMarket(m){
+    market=m;
     show("time");
 }
 
-// =====================
-function setTime(t) {
-    time = t;
+// STEP 3
+function setTime(t){
+    time=t;
     runAnalysis();
 }
 
 // =====================
-async function runAnalysis() {
+// 🔥 ANALYSE FIXÉE
+// =====================
+function runAnalysis(){
 
     show("analysis");
 
-    setTimeout(async () => {
+    setTimeout(async ()=>{
 
         const res = await fetch("/api/signal");
-        const data = await res.json();
+        const d = await res.json();
 
-        document.getElementById("rsi").innerText = "RSI: " + data.rsi;
-        document.getElementById("momentum").innerText = "Momentum: " + data.momentum;
+        document.getElementById("rsi").innerText="RSI: "+d.rsi;
+        document.getElementById("momentum").innerText="Momentum: "+d.momentum;
+        document.getElementById("strategy").innerText="Strategy: RSI + Momentum + Trend";
 
-        document.getElementById("signal").innerText =
-            data.emoji + " " + data.signal;
+        let final = "";
+
+        if(d.signal==="CALL"){
+            final="🟢📈 BUY STRONG";
+        } else if(d.signal==="PUT"){
+            final="🔴📉 SELL STRONG";
+        } else {
+            final="🟡 WAIT MARKET";
+        }
+
+        document.getElementById("final").innerText=final;
+        document.getElementById("signal").innerText=d.emoji+" "+d.signal;
 
         show("result");
 
-    }, 2000);
+    }, 1800);
+}
+
+// RESET
+function restart(){
+    market="";
+    time="";
+    show("start");
 }
 
 </script>
