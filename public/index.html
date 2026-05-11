@@ -1,50 +1,140 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OTC Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TABLEAU DE BORD LIVE</title>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
+<style>
+body {
+    font-family: Arial;
+    background:#0f172a;
+    color:white;
+    text-align:center;
+    padding:15px;
+}
 
-        .card {
-            background: #1e293b;
-            margin: 10px;
-            padding: 15px;
-            border-radius: 10px;
-        }
+.box {
+    background:#1e293b;
+    margin:10px;
+    padding:15px;
+    border-radius:12px;
+}
 
-        button {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-        }
+button {
+    padding:12px;
+    margin:8px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+}
 
-        .buy { background: #22c55e; color: white; }
-        .sell { background: #ef4444; color: white; }
-    </style>
+.buy {
+    background:#22c55e;
+    color:white;
+}
+
+.sell {
+    background:#ef4444;
+    color:white;
+}
+
+.step {
+    font-size:18px;
+    margin:10px 0;
+}
+</style>
 </head>
 
 <body>
 
-    <h2>📊 OTC LIVE DASHBOARD</h2>
+<h2>📊 TABLEAU DE BORD EN DIRECT</h2>
 
-    <div class="card" id="market">Market: ...</div>
-    <div class="card" id="time">Timeframe: ...</div>
-    <div class="card" id="rsi">RSI: ...</div>
-    <div class="card" id="signal">Signal: ...</div>
+<!-- STEP 1 -->
+<div class="box">
+    <div class="step">💎 Marché</div>
+    <button onclick="setMarket('EUR/USD')">EUR/USD</button>
+    <button onclick="setMarket('GBP/USD')">GBP/USD</button>
+    <button onclick="setMarket('BTC/USD')">BTC/USD</button>
+</div>
 
-    <button class="buy" onclick="alert('BUY signal 📈')">📈 BUY</button>
-    <button class="sell" onclick="alert('SELL signal 📉')">📉 SELL</button>
+<!-- STEP 2 -->
+<div class="box">
+    <div class="step">⏱ Timeframe</div>
+    <button onclick="setTime('5s')">5s</button>
+    <button onclick="setTime('15s')">15s</button>
+    <button onclick="setTime('1m')">1m</button>
+</div>
+
+<!-- STEP 3 -->
+<div class="box">
+    <div class="step">📊 Analyse</div>
+    <p id="rsi">RSI: ...</p>
+    <p id="momentum">Momentum: ...</p>
+    <p id="signal">Signal: ...</p>
+
+    <button onclick="analyze()">🔍 ANALYSER</button>
+</div>
+
+<!-- STEP 4 -->
+<div class="box">
+    <div class="step">📈 POSITION</div>
+
+    <button class="buy" onclick="alert('📈 BUY (UI seulement)')">
+        📈 ACHETER
+    </button>
+
+    <button class="sell" onclick="alert('📉 SELL (UI seulement)')">
+        📉 VENDRE
+    </button>
+</div>
+
+<script>
+
+let market = "";
+let time = "";
+
+// 📌 STEP 1
+function setMarket(m) {
+    market = m;
+    alert("Marché sélectionné: " + m);
+}
+
+// 📌 STEP 2
+function setTime(t) {
+    time = t;
+    alert("Timeframe: " + t);
+}
+
+// 📌 STEP 3 (SIMULATION ANALYSE)
+function analyze() {
+
+    if (!market || !time) {
+        alert("Choisir marché + time");
+        return;
+    }
+
+    let rsi = Math.floor(Math.random() * 100);
+
+    let momentum = "NEUTRE";
+    let signal = "WAIT";
+
+    if (rsi < 30) {
+        momentum = "📈 HAUSSIER 🟢";
+        signal = "CALL 🟢";
+    }
+
+    if (rsi > 70) {
+        momentum = "📉 BAISSIER 🔴";
+        signal = "PUT 🔴";
+    }
+
+    document.getElementById("rsi").innerText = "RSI: " + rsi;
+    document.getElementById("momentum").innerText = "Momentum: " + momentum;
+    document.getElementById("signal").innerText = "Signal: " + signal;
+}
+
+</script>
 
 </body>
 </html>
