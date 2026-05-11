@@ -1,53 +1,36 @@
 require("dotenv").config();
 const express = require("express");
-
 const app = express();
+
 app.use(express.static("public"));
 
-// ======================
-// 📊 SIMULATION IA CORE
-// ======================
-function analyzeMarket() {
+// 📊 API ANALYSE IA
+app.get("/api/signal", (req, res) => {
 
     const rsi = Math.floor(Math.random() * 100);
-    const momentumScore = Math.random();
+    const momentum = Math.random();
 
-    let momentum = "NEUTRE";
     let signal = "WAIT";
     let emoji = "🟡";
 
-    // 📊 LOGIQUE IA SIMPLE
-    if (rsi < 30 && momentumScore > 0.6) {
+    if (rsi < 30 && momentum > 0.5) {
         signal = "CALL";
-        momentum = "HAUSSIER";
         emoji = "🟢📈";
     }
 
-    if (rsi > 70 && momentumScore < 0.4) {
+    if (rsi > 70 && momentum < 0.5) {
         signal = "PUT";
-        momentum = "BAISSIER";
         emoji = "🔴📉";
     }
 
-    return {
+    res.json({
         rsi,
-        momentum,
         signal,
         emoji,
-        confidence: Math.floor(momentumScore * 100)
-    };
-}
-
-// ======================
-// API ANALYSE
-// ======================
-app.get("/api/analyze", (req, res) => {
-    res.json(analyzeMarket());
+        momentum: momentum > 0.5 ? "HAUSSIER" : "BAISSIER"
+    });
 });
 
-// ======================
-// SERVER
-// ======================
 app.listen(process.env.PORT || 3000, () => {
-    console.log("🚀 server running");
+    console.log("🚀 Mini App running");
 });
