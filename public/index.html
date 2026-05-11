@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OTC Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .buy { background: #22c55e; color: white; }
+        .sell { background: #ef4444; color: white; }
+    </style>
+</head>
+
+<body>
+
+    <h2>📊 OTC LIVE DASHBOARD</h2>
+
+    <div class="card" id="market">Market: ...</div>
+    <div class="card" id="time">Timeframe: ...</div>
+    <div class="card" id="rsi">RSI: ...</div>
+    <div class="card" id="signal">Signal: ...</div>
+
+    <button class="buy" onclick="alert('BUY signal 📈')">📈 BUY</button>
+    <button class="sell" onclick="alert('SELL signal 📉')">📉 SELL</button>
+
+</body>
+</html>
